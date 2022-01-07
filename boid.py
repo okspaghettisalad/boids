@@ -44,7 +44,8 @@ class Boid:
             passedChecks = 0
             for boid in boids:
                 if boid != self:
-                    pass
+                    if boid.box.collidepoint():
+                        pass
                     #if not visBox.colliderect(boid.box):
                         #passedChecks += 1
 
