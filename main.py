@@ -13,7 +13,7 @@ Boid(Vector2(SCR_WIDTH/2,10), Vector2(0,10))
 running = True
 while running:
 
-    pygame.time.wait(1200)
+    pygame.time.wait(120)
     screen.fill((0,0,0))
 
     for boid in boids:

@@ -5,7 +5,7 @@ from screen import *
 boids = []
 
 class Boid:
-    
+
     def __init__(self, position:Vector2=Vector2(SCR_WIDTH/2,SCR_HEIGHT/2), velocity:Vector2=Vector2(0,-10)) -> None:
 
         self.position = position
@@ -46,19 +46,27 @@ class Boid:
             angle += i
             #print(angle)
 
+            checkPoint = Vector2(self.velocity)
             checkPoint.rotate(angle)
 
             for dist in range(1, self.visibleRange):
+
                 checkPoint.scale_to_length(dist)
                 #print(self.position + checkPoint)
-                #pygame.draw.rect(screen, (100,100,100), \
-                #    Rect(self.position.x + checkPoint.x, self.position.y + checkPoint.y, 2, 2))
+
+                if self.position.x + checkPoint.x < 0 \
+                or self.position.x + checkPoint.x > SCR_WIDTH \
+                or self.position.y + checkPoint.y < 0 \
+                or self.position.y + checkPoint.y > SCR_HEIGHT:
+                    print(f"boid {boids.index(self)} detected screen barrier at {self.position + checkPoint}")
+                    break
+
                 for boid in boids:
                     if boid != self:
                         if not boid.box.collidepoint(self.position + checkPoint):
                             clearedBoids += 1
                         else:
-                            print(f"boid {boids.index(self)} detected {boid} at {checkPoint}")
+                            print(f"boid {boids.index(self)} detected {boid} at {self.position + checkPoint}")
                             break
 
             #pygame.draw.line(screen, (200,200,200), self.position, self.position + checkPoint)
