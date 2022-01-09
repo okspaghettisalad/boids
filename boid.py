@@ -54,8 +54,10 @@ class Boid:
                 checkPoint.scale_to_length(dist)
                 #print(self.position + checkPoint)
 
-                if checkPoint.x < 0 or checkPoint.x > SCR_WIDTH \
-                or checkPoint.y < 0 or checkPoint.y > SCR_HEIGHT:
+                if self.position.x + checkPoint.x < 0 \
+                or self.position.x + checkPoint.x > SCR_WIDTH \
+                or self.position.y + checkPoint.y < 0 \
+                or self.position.y + checkPoint.y > SCR_HEIGHT:
                     print(f"boid {boids.index(self)} detected screen barrier at {self.position + checkPoint}")
                     break
 
