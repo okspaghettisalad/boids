@@ -5,6 +5,7 @@ from screen import *
 boids = []
 
 class Boid:
+    
     def __init__(self, position:Vector2=Vector2(SCR_WIDTH/2,SCR_HEIGHT/2), velocity:Vector2=Vector2(0,-10)) -> None:
 
         self.position = position
@@ -18,7 +19,7 @@ class Boid:
         self.height = 10
 
         # *initial conditions* not controlled by constructor
-        self.box = Rect(self.position.x-(self.width/2), self.position.y, self.width, self.height)
+        self.box = Rect(self.position.x-(self.width/2), self.position.y-(self.width/2), self.width, self.height)
 
         boids.append(self)
 
@@ -30,6 +31,10 @@ class Boid:
         if len(boids) == 1:
             return angle
 
+        # THIS IS ONLY FOR DRAWING A LINE FROM THE BOID TO THE CHECK POINT (in update())
+        # FOR DEBBUGING AND IS TEMPORARY
+        global checkPoint
+
         checkPoint = Vector2(self.velocity)
         clearedBoids = 0
 
@@ -39,32 +44,39 @@ class Boid:
         for i in range(self.visibilityAngle):
             if i % 2 == 0:  i *= -1
             angle += i
-            print(angle)
+            #print(angle)
 
             checkPoint.rotate(angle)
 
             for dist in range(1, self.visibleRange):
                 checkPoint.scale_to_length(dist)
                 #print(self.position + checkPoint)
+                #pygame.draw.rect(screen, (100,100,100), \
+                #    Rect(self.position.x + checkPoint.x, self.position.y + checkPoint.y, 2, 2))
                 for boid in boids:
                     if boid != self:
-                        if not boid.box.collidepoint(checkPoint):
+                        if not boid.box.collidepoint(self.position + checkPoint):
                             clearedBoids += 1
-                        else: break
+                        else:
+                            print(f"boid {boids.index(self)} detected {boid} at {checkPoint}")
+                            break
 
-            #pygame.draw.line(screen, (200,200,200), self.position, self.position + checkPoint)     
-            
+            #pygame.draw.line(screen, (200,200,200), self.position, self.position + checkPoint)
+
             if clearedBoids == len(boids)-1:
                 return angle
-
-            if i == self.visibilityAngle:
-                raise Exception(f"boid {boids.index(self)} couldn't find a path")
+    
+        #raise Exception(f"boid {boids.index(self)} couldn't find a path")
+        return 0
                         
     def update(self) -> None:
 
-        self.velocity.rotate(self.turnAngle())
+        angle = self.turnAngle()
+        self.velocity.rotate(angle)
         self.position += self.velocity
-        self.box = Rect(self.position.x-(self.width/2), self.position.y, self.width, self.height)
+        self.box = Rect(self.position.x-(self.width/2), self.position.y-(self.width/2), self.width, self.height)
 
         pygame.draw.rect(screen, self.color, self.box)
         pygame.draw.line(screen, (255,0,0), self.position, self.position + self.velocity, 2)
+
+        pygame.draw.line(screen, (100,100,100), self.position, self.position + checkPoint)
