@@ -23,64 +23,35 @@ class Boid:
 
         boids.append(self)
 
-    # Rule 1: Thou shalt avoid other boids
-    def turnAngle(self) -> int:
-        
+    def collisionCheck(self) -> int:
+
+        unsafeAngles = []
+
+        for boid in boids:
+            if boid != self:
+                if self.position.distance_to(boid.position) < self.visibleRange:
+                    
+                    pass
+
+        # 90, 91, 89, 92, 88, ... 0, 180  (if 90 is start and 180 is visibility angle)
         angle = Vector2(1,0).angle_to(self.velocity)
-
-        if len(boids) == 1:
-            return angle
-
-        # THIS IS ONLY FOR DRAWING A LINE FROM THE BOID TO THE CHECK POINT (in update())
-        # FOR DEBBUGING AND IS TEMPORARY
-        global checkPoint
-
-        checkPoint = Vector2(self.velocity)
-
-        # goes though every integer angle from middle to visibilityAngle/2, alternating sides each iteration:
-        # 10, 11, 9, 12, 8, etc.
-
         for i in range(self.visibilityAngle):
-            if i % 2 == 0:  i *= -1
+            if i % 2: angle *= 1
             angle += i
-            #print(angle)
 
-            angleUnsafe = False
-            self.clearedBoids = 0
-
-            checkPoint = Vector2(self.velocity)
-            checkPoint.rotate(angle)
-
-            for dist in range(1, self.visibleRange):
-                checkPoint.scale_to_length(dist)
-                #print(self.position + checkPoint)
-
-                for boid in boids:
-                    if boid != self:
-                        if not boid.box.collidepoint(self.position + checkPoint):
-                            self.clearedBoids += 1
-                            #print(f"{boids.index(self)} cleared {boids.index(boid)}")
-                        else:
-                            print(f"boid {boids.index(self)} detected {boid} at {self.position + checkPoint}")
-                            angleUnsafe = True
-                            break
-                if angleUnsafe: break
-
-            #pygame.draw.line(screen, (200,200,200), self.position, self.position + checkPoint)
-
-            if self.clearedBoids == len(boids)-1:
+            if angle not in unsafeAngles:
                 return angle
-            #print(f"{boids.index(self)} new angle ({angle})")
-        raise Exception(f"boid {boids.index(self)} couldn't find a path")
-                        
+
+    # Rule 1: Thou shalt avoid other boids
     def update(self) -> None:
 
-        angle = self.turnAngle()
+        angle = self.collisionCheck()
+
         self.velocity.rotate(angle)
         self.position += self.velocity
         self.box = Rect(self.position.x-(self.width/2), self.position.y-(self.width/2), self.width, self.height)
 
+        pygame.draw.circle(screen, (150,150,150), self.position, self.visibleRange, 2)
+
         pygame.draw.rect(screen, self.color, self.box)
         pygame.draw.line(screen, (255,0,0), self.position, self.position + self.velocity, 2)
-
-        pygame.draw.line(screen, (100,100,100), self.position, self.position + checkPoint)
